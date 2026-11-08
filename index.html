@@ -64,7 +64,7 @@ table.t{width:100%;border-collapse:collapse;font-size:12.5px;min-width:760px}
 .man summary{cursor:pointer;font-weight:600;color:var(--acc)}
 .mf{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .mf input,.mf select{width:150px;border:1px solid var(--bd);padding:6px;border-radius:3px;background:var(--paper);color:var(--ink)}
-@media print{:root:root:root{--bg:#fff;--paper:#fff;--ink:#000;--mut:#444;--bd:#bbb;--acc:#000;--head:#eee}.noprint{display:none!important}.sheet{border:0;margin:0;padding:12mm;max-width:none}input{border:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4;margin:0}}
+@media print{:root:root:root{--bg:#fff;--paper:#fff;--ink:#000;--mut:#444;--bd:#bbb;--acc:#000;--head:#eee}.noprint{display:none!important}.sheet{border:0;margin:0;padding:10mm 12mm;max-width:none;width:auto}input{border:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.tw{overflow:visible!important;margin-top:10px}table.t{min-width:0!important;width:100%}.t thead{display:table-header-group}.t tr{break-inside:avoid}.grid,.sum{break-inside:avoid}.top{flex-wrap:nowrap}@page{size:A4 landscape;margin:0}}
 </style></head><body>
 <div class="bar noprint">
 <section class="card hd"><h1>Sistem Rekap Invoice Nusanta Go</h1><p>Unggah invoice (PDF atau gambar), periksa hasil bacanya, lalu unduh atau cetak rekapitulasi.</p></section>
@@ -177,7 +177,7 @@ function rowsData(){return[...document.querySelectorAll('#tb tr')].filter(tr=>tr
 async function makePdf(){
  const J=window.jspdf&&window.jspdf.jsPDF;if(!J){alert('Pustaka PDF belum termuat. Periksa koneksi lalu muat ulang halaman.');return}
  const body=rowsData();if(!body.length){alert('Belum ada data untuk dibuat PDF.');return}
- const doc=new J({unit:'mm',format:'a4'}),W=210,M=14,R=W-M,ink=[26,31,43],mut=[91,100,114],cl=s=>String(s).replace(/–/g,'-'),y=14;
+ const doc=new J({unit:'mm',format:'a4',orientation:'landscape'}),W=297,H=210,M=14,R=W-M,ink=[26,31,43],mut=[91,100,114],cl=s=>String(s).replace(/–/g,'-'),y=12;
  const img=document.querySelector('.co img');
  try{doc.addImage(img.src,'PNG',M,y,14*((img.naturalWidth/img.naturalHeight)||4.7),14)}catch(e){}
  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...ink);doc.text('PT Nusanta Patra Mandala',M,y+19);
@@ -186,33 +186,34 @@ async function makePdf(){
  const meta=[['No. Rekap',$('no').value||'-'],['Tgl Dokumen',$('gd').textContent],['Kode Sales',$('sl').value||'-'],['Periode',$('pd').textContent],['Jumlah Invoice',$('ni').textContent]];
  doc.setFontSize(8);meta.forEach((m,i)=>{const yy=y+3+i*4.6;doc.setTextColor(...mut);doc.text(m[0],R-68,yy);doc.text(':',R-47,yy);doc.setTextColor(...ink);doc.text(cl(m[1]),R-44,yy)});
  doc.setDrawColor(...ink);doc.setLineWidth(.5);doc.line(M,y+37,R,y+37);
- doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(...ink);doc.text('REKAPITULASI INVOICE',W/2,y+46,{align:'center'});
- doc.setLineWidth(.25);doc.rect(M,y+50,84,17);doc.setFontSize(8.5);doc.text('Ditagihkan kepada :',M+3,y+55.5);
+ doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(...ink);doc.text('REKAPITULASI INVOICE',W/2,y+48,{align:'center'});
+ doc.setLineWidth(.25);doc.rect(M,y+41,84,17);doc.setFontSize(8.5);doc.text('Ditagihkan kepada :',M+3,y+46.5);
  doc.setFont('helvetica','normal');
- doc.text(doc.splitTextToSize('Nama   : '+cl($('cu').value||'-'),78)[0],M+3,y+60.5);doc.text(doc.splitTextToSize('Telp.   : '+cl($('tp').value||'-'),78)[0],M+3,y+65);
+ doc.text(doc.splitTextToSize('Nama   : '+cl($('cu').value||'-'),78)[0],M+3,y+51.5);doc.text(doc.splitTextToSize('Telp.   : '+cl($('tp').value||'-'),78)[0],M+3,y+56);
  const disc=+$('ds').textContent.replace(/\D/g,'')||0,RT={halign:'right'};
  const foot=[[{content:'Jumlah',colSpan:7,styles:RT},{content:$('sb').textContent,styles:RT}]];
  if(disc)foot.push([{content:'Discount',colSpan:7,styles:RT},{content:$('ds').textContent,styles:RT}]);
  foot.push([{content:'Total',colSpan:7,styles:RT},{content:$('tt').textContent,styles:RT}]);
- doc.autoTable({startY:y+72,margin:{left:M,right:M,bottom:14},theme:'grid',showFoot:'lastPage',foot,
+ doc.autoTable({startY:y+62,margin:{left:M,right:M,top:12,bottom:12},theme:'grid',showFoot:'lastPage',foot,
   head:[['No.','Nama Penumpang','PNR','No. Tiket','Kelas','Rute','Tgl Penerbangan','Harga (IDR)']],body:body.map(r=>r.map(cl)),
-  styles:{font:'helvetica',fontSize:7.5,cellPadding:{top:1.1,bottom:1.1,left:1.5,right:1.5},textColor:ink,lineColor:[170,176,186],lineWidth:.1,valign:'top'},
+  styles:{font:'helvetica',fontSize:8,cellPadding:{top:1.1,bottom:1.1,left:1.6,right:1.6},textColor:ink,lineColor:[170,176,186],lineWidth:.1,valign:'top'},
   headStyles:{fillColor:[233,237,243],textColor:ink,fontStyle:'bold'},footStyles:{fillColor:[255,255,255],textColor:ink,fontStyle:'bold'},
-  columnStyles:{0:{cellWidth:9,halign:'center'},1:{cellWidth:37},2:{cellWidth:17},3:{cellWidth:27},4:{cellWidth:22},5:{cellWidth:20},6:{cellWidth:26},7:{cellWidth:24,halign:'right'}}});
+  columnStyles:{0:{cellWidth:10,halign:'center'},1:{cellWidth:60},2:{cellWidth:24},3:{cellWidth:36},4:{cellWidth:30},5:{cellWidth:28},6:{cellWidth:36},7:{cellWidth:45,halign:'right'}}});
  let yy=doc.lastAutoTable.finalY+5;
  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...ink);
- const tl=doc.splitTextToSize('Terbilang: '+cl($('tw').textContent).replace(/\b\w/g,c=>c.toUpperCase()),182);
- if(yy+tl.length*3.8+54>297-10){doc.addPage();yy=14}
+ const tl=doc.splitTextToSize('Terbilang: '+cl($('tw').textContent).replace(/\b\w/g,c=>c.toUpperCase()),R-M);
+ if(yy+tl.length*3.8+56>H-8){doc.addPage();yy=14}
  doc.text(tl,M,yy);yy+=tl.length*3.8+3;
  doc.setLineWidth(.5);doc.line(M,yy,R,yy);yy+=6;
- doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.text('DETAIL PEMBAYARAN',M,yy);doc.text('TANDA TERIMA CUSTOMER / TRAVEL AGENT',M+98,yy);
+ const xr=M+150;
+ doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.text('DETAIL PEMBAYARAN',M,yy);doc.text('TANDA TERIMA CUSTOMER / TRAVEL AGENT',xr,yy);
  doc.setFont('helvetica','normal');doc.setFontSize(8);
  ['Transfer ke:','Bank BCA','A/N PT. NUSANTA PATRA MANDALA','1192780033'].forEach((t,i)=>doc.text(t,M,yy+5+i*4));
- doc.text(doc.splitTextToSize('Mohon cantumkan nomor rekap/invoice pada berita transfer.',88),M,yy+21);
- doc.text(doc.splitTextToSize('Rekapitulasi di atas telah diterima dalam keadaan lengkap dan benar.',84),M+98,yy+5);
- const ys=yy+30;doc.setLineWidth(.25);doc.line(M+98,ys,M+132,ys);doc.line(M+144,ys,R,ys);
- doc.setFontSize(7.5);doc.text('Customer',M+115,ys+4,{align:'center'});doc.text('Travel Agent',(M+144+R)/2,ys+4,{align:'center'});
- if($('op').value)doc.text(cl($('op').value),(M+144+R)/2,ys+8,{align:'center'});
+ doc.text(doc.splitTextToSize('Mohon cantumkan nomor rekap/invoice pada berita transfer.',130),M,yy+21);
+ doc.text(doc.splitTextToSize('Rekapitulasi di atas telah diterima dalam keadaan lengkap dan benar.',R-xr),xr,yy+5);
+ const ys=yy+30;doc.setLineWidth(.25);doc.line(xr,ys,xr+48,ys);doc.line(R-48,ys,R,ys);
+ doc.setFontSize(7.5);doc.text('Customer',xr+24,ys+4,{align:'center'});doc.text('Travel Agent',R-24,ys+4,{align:'center'});
+ if($('op').value)doc.text(cl($('op').value),R-24,ys+8,{align:'center'});
  doc.setTextColor(...mut);doc.text('Dokumen dibuat pada: '+GEN,M,ys+14);
  const blob=doc.output('blob');
  try{const dl=await claude.use('downloads');if(!dl)throw 0;await dl.save({filename:'rekap-invoice.pdf',data:blob})}catch(e){doc.save('rekap-invoice.pdf')}
