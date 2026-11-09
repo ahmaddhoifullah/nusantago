@@ -64,17 +64,17 @@ pre#out{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);b
 <div><label>Jumlah penumpang</label><input id="pax" type="number" min="1" value="1"></div></div></div>
 
 <div class="card" style="margin-top:14px"><h2>3. Urutkan &amp; saring</h2>
-<label>Urutkan</label>
+<label>Urutkan berdasarkan :</label>
 <select id="so"><option value="time">Berangkat paling awal</option><option value="timeD">Berangkat paling akhir</option><option value="price">Harga termurah</option><option value="priceD">Harga termahal</option><option value="air">Maskapai (A–Z)</option><option value="dur">Total perjalanan tersingkat</option></select>
 <label>Maskapai (semua penerbangan dalam rute harus terpilih)</label><div id="fa" class="chips"></div>
-<label>Waktu berangkat</label>
+<label>Waktu Keberangkatan</label>
 <div id="ft" class="chips">
 <label class="chip"><input type="checkbox" value="pagi" checked> Pagi (&lt;12)</label>
 <label class="chip"><input type="checkbox" value="siang" checked> Siang (12–15)</label>
 <label class="chip"><input type="checkbox" value="sore" checked> Sore (15–18)</label>
 <label class="chip"><input type="checkbox" value="malam" checked> Malam (18+)</label></div>
 <div class="row"><div><label>Harga jual maks (Rp)</label><input id="mx" type="number" min="0" step="10000" placeholder="mis. 2500000"></div>
-<div><label>Transit</label><select id="st"><option value="all">Semua</option><option value="0">Langsung saja</option><option value="1">Maks. 1 transit</option></select></div></div>
+<div><label>Transit</label><select id="st"><option value="all">Semua</option><option value="0">Langsung/Direct</option><option value="1">Maks. 1 transit</option></select></div></div>
 <div class="row"><div><label>Lama transit maks (jam)</label><input id="ml" type="number" min="0" step="0.5" placeholder="mis. 4"></div></div></div>
 </div>
 
@@ -83,14 +83,14 @@ pre#out{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);b
 <div class="sum" id="sum"></div>
 <div id="list"></div></div>
 
-<div class="card" style="margin-top:14px"><h2>Teks untuk pelanggan</h2>
+<div class="card" style="margin-top:14px"><h2>Teks untuk Customer</h2>
 <div class="chips">
-<label class="chip"><input type="checkbox" id="oBold" checked> Tebal (WhatsApp)</label>
+<label class="chip"><input type="checkbox" id="oBold" checked> Teks Tebal (Format WhatsApp)</label>
 <label class="chip"><input type="checkbox" id="oTot"> Total × penumpang</label>
-<label class="chip"><input type="checkbox" id="oCls" checked> Kode kelas [Y]</label>
+<label class="chip"><input type="checkbox" id="oCls" checked> Kode kelas penerbangan [Y]</label>
 <label class="chip"><input type="checkbox" id="oEmoji" checked> Emoji</label>
 <label class="chip"><input type="checkbox" id="oDur"> Total durasi perjalanan</label></div>
-<div class="row"><div><label>Kalimat pembuka (opsional)</label><input id="hd" placeholder="Halo kak, berikut pilihan tiketnya:"></div></div>
+<div class="row"><div><label>Kalimat pembuka (opsional)</label><input id="hd" placeholder="Halo kak, berikut pilihan jadwal penerbangannya :"></div></div>
 <div class="row"><div><label>Kalimat penutup (opsional)</label><input id="ft2" placeholder="Harga bisa berubah sewaktu-waktu. Mau yang mana kak?"></div></div>
 <pre id="out"></pre>
 <button id="cp">Salin teks</button> <span id="ok" class="msg"></span></div>
