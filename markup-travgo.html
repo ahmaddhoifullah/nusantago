@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Markup Tiket Pesawat</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f7f9;--surface:#fff;--text:#1d2330;--muted:#6b7385;--line:#e2e5ec;--accent:#0b6bcb;--accent-t:#fff;--good:#0e8a4f;--warn:#b45309}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14171d;--surface:#1d2129;--text:#e8ebf1;--muted:#98a1b3;--line:#2e3441;--accent:#4c9bf0;--accent-t:#0b1320;--good:#4cc38a;--warn:#f0a65a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#14171d;--surface:#1d2129;--text:#e8ebf1;--muted:#98a1b3;--line:#2e3441;--accent:#4c9bf0;--accent-t:#0b1320;--good:#4cc38a;--warn:#f0a65a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 16px;font-size:13px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:860px){.grid{grid-template-columns:380px 1fr;align-items:start}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:0 0 10px}
+label{display:block;font-size:13px;color:var(--muted);margin:8px 0 3px}
+textarea,input,select{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit}
+textarea{min-height:150px;font-family:ui-monospace,Menlo,monospace;font-size:12px;resize:vertical}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;cursor:pointer;background:var(--bg);color:var(--text);margin:0}
+.chip input{width:auto;margin:0}
+button{background:var(--accent);color:var(--accent-t);border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+button.sec{background:var(--bg);color:var(--text);border:1px solid var(--line)}
+.opt{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:var(--bg)}
+.opt.off{opacity:.45}
+.opt input{width:auto}
+.al{font-weight:600}.meta{color:var(--muted);font-size:13px}
+.lay{color:var(--warn);font-size:12px}
+.time{font-size:17px;font-weight:600}
+.price{text-align:right}.price b{font-size:17px;display:block}
+.old{color:var(--muted);font-size:12px;text-decoration:line-through}
+.profit{color:var(--good);font-size:12px}
+.tag{display:inline-block;font-size:11px;border:1px solid var(--line);border-radius:6px;padding:0 6px;margin-left:4px;color:var(--muted)}
+.tag.best{color:var(--good);border-color:var(--good)}
+pre#out{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;max-height:380px;overflow:auto;margin:8px 0}
+.msg{color:var(--warn);font-size:13px}
+.sum{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:10px}
+.sum b{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>✈️ Markup Tiket Pesawat</h1>
+<p class="sub">Tempel teks hasil dari sistem pemesanan (langsung maupun transit), atur markup, urutkan/saring, lalu salin ke WhatsApp.</p>
+<div class="grid">
+<div>
+<div class="card"><h2>1. Tempel teks</h2>
+<textarea id="src" placeholder="#Option-1&#10;Citilink QG 961&#10;09 Nov 2026&#10;Sultan Thaha (DJB) - Soekarno Hatta Intl (CGK) [D]&#10;08:55 - 10:20&#10;0 Stop&#10;IDR 1,550,431"></textarea>
+<div class="row" style="margin-top:8px"><button class="sec" id="clr">Kosongkan</button></div>
+<div id="err" class="msg"></div></div>
+
+<div class="card" style="margin-top:14px"><h2>2. Markup</h2>
+<div class="row"><div><label>Jenis</label><select id="mt"><option value="pct">Persen (%)</option><option value="fix">Nominal per tiket (Rp)</option><option value="both">Persen + Nominal</option></select></div>
+<div><label id="l1">Persen</label><input id="mv" type="number" min="0" step="any" value="5"></div></div>
+<div id="r2" class="row" style="display:none"><div><label>Tambahan nominal (Rp)</label><input id="mv2" type="number" min="0" step="1000" value="50000"></div></div>
+<div class="row"><div><label>Pembulatan ke atas</label><select id="rd"><option value="1">Tidak dibulatkan</option><option value="1000">Ribuan (1.000)</option><option value="10000">10 ribu</option><option value="50000">50 ribu</option><option value="100000">100 ribu</option></select></div>
+<div><label>Jumlah penumpang</label><input id="pax" type="number" min="1" value="1"></div></div></div>
+
+<div class="card" style="margin-top:14px"><h2>3. Urutkan &amp; saring</h2>
+<label>Urutkan</label>
+<select id="so"><option value="time">Berangkat paling awal</option><option value="timeD">Berangkat paling akhir</option><option value="price">Harga termurah</option><option value="priceD">Harga termahal</option><option value="air">Maskapai (A–Z)</option><option value="dur">Total perjalanan tersingkat</option></select>
+<label>Maskapai (semua penerbangan dalam rute harus terpilih)</label><div id="fa" class="chips"></div>
+<label>Waktu berangkat</label>
+<div id="ft" class="chips">
+<label class="chip"><input type="checkbox" value="pagi" checked> Pagi (&lt;12)</label>
+<label class="chip"><input type="checkbox" value="siang" checked> Siang (12–15)</label>
+<label class="chip"><input type="checkbox" value="sore" checked> Sore (15–18)</label>
+<label class="chip"><input type="checkbox" value="malam" checked> Malam (18+)</label></div>
+<div class="row"><div><label>Harga jual maks (Rp)</label><input id="mx" type="number" min="0" step="10000" placeholder="mis. 2500000"></div>
+<div><label>Transit</label><select id="st"><option value="all">Semua</option><option value="0">Langsung saja</option><option value="1">Maks. 1 transit</option></select></div></div>
+<div class="row"><div><label>Lama transit maks (jam)</label><input id="ml" type="number" min="0" step="0.5" placeholder="mis. 4"></div></div></div>
+</div>
+
+<div>
+<div class="card"><h2>Hasil</h2>
+<div class="sum" id="sum"></div>
+<div id="list"></div></div>
+
+<div class="card" style="margin-top:14px"><h2>Teks untuk pelanggan</h2>
+<div class="chips">
+<label class="chip"><input type="checkbox" id="oBold" checked> Tebal (WhatsApp)</label>
+<label class="chip"><input type="checkbox" id="oTot"> Total × penumpang</label>
+<label class="chip"><input type="checkbox" id="oCls" checked> Kode kelas [Y]</label>
+<label class="chip"><input type="checkbox" id="oEmoji" checked> Emoji</label>
+<label class="chip"><input type="checkbox" id="oDur"> Total durasi perjalanan</label></div>
+<div class="row"><div><label>Kalimat pembuka (opsional)</label><input id="hd" placeholder="Halo kak, berikut pilihan tiketnya:"></div></div>
+<div class="row"><div><label>Kalimat penutup (opsional)</label><input id="ft2" placeholder="Harga bisa berubah sewaktu-waktu. Mau yang mana kak?"></div></div>
+<pre id="out"></pre>
+<button id="cp">Salin teks</button> <span id="ok" class="msg"></span></div>
+</div>
+</div>
+</div>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var data=[],off={},KEY='markup-tiket-v2';
+var inputs=['mt','mv','mv2','rd','pax','so','mx','st','ml','hd','ft2'];
+var checks=['oBold','oTot','oCls','oEmoji','oDur'];
+var MON={jan:0,feb:1,mar:2,apr:3,may:4,mei:4,jun:5,jul:6,aug:7,agu:7,agt:7,sep:8,oct:9,okt:9,nov:10,dec:11,des:11};
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function toMin(t){var p=t.split(':');return (+p[0])*60+(+p[1])}
+function dayNum(s){var m=s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);if(!m)return null;var mo=MON[m[2].slice(0,3).toLowerCase()];if(mo===undefined)return null;return Date.UTC(+m[3],mo,+m[1])/86400000}
+function layMin(s){var h=s.match(/(\d+)\s*h/i),m=s.match(/(\d+)\s*m/i);return (h?+h[1]*60:0)+(m?+m[1]:0)}
+function iata(s){var m=s.match(/\(([A-Z]{3})\)/);return m?m[1]:s}
+function city(s){return s.replace(/\s*\(.*$/,'')}
+function rp(n){return n.toLocaleString('en-US')}
+function fmtDur(m){return Math.floor(m/60)+'j '+(m%60)+'m'}
+function bucket(t){var h=+t.split(':')[0];return h<12?'pagi':h<15?'siang':h<18?'sore':'malam'}
+
+function parse(text){
+  var blocks=text.split(/#\s*Option\s*-?\s*\d+/i).map(function(s){return s.trim()}).filter(Boolean);
+  if(blocks.length<=1&&!/#\s*Option/i.test(text)){blocks=text.split(/\n\s*\n\s*\n/).map(function(s){return s.trim()}).filter(Boolean)}
+  var res=[],bad=0;
+  blocks.forEach(function(b){
+    var lines=b.split(/\n/).map(function(l){return l.trim()}).filter(Boolean);
+    var o={segs:[],lay:[],price:0,exp:0},seg=null;
+    function ns(){seg={airline:'',code:'',date:'',from:'',to:'',cls:'',dep:'',arr:''};o.segs.push(seg);return seg}
+    function cur(f){if(!seg||seg[f])ns();return seg}
+    lines.forEach(function(l){
+      var m;
+      if((m=l.match(/IDR\s*([\d.,]+)/i))){o.price=parseInt(m[1].replace(/[.,]/g,''),10)}
+      else if((m=l.match(/^Stop\s*#?\s*\d*\s*,?\s*(.*)$/i))){o.lay.push(m[1].trim())}
+      else if((m=l.match(/^(.*?\(([A-Z]{3})\))\s+-\s+(.*?\(([A-Z]{3})\))\s*(?:\[(\w+)\])?/))){var s=cur('from');s.from=m[1].replace(/\s+/g,' ');s.to=m[3].replace(/\s+/g,' ');s.cls=m[5]||''}
+      else if((m=l.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/))){var s2=cur('dep');s2.dep=m[1].padStart(5,'0');s2.arr=m[2].padStart(5,'0')}
+      else if((m=l.match(/^(\d+)\s*Stop/i))){o.exp=parseInt(m[1],10)}
+      else if(/^\d{1,2}\s+[A-Za-z]{3,}\s+\d{4}$/.test(l)){cur('date').date=l}
+      else{m=l.match(/^(.*?)\s+([A-Z0-9]{2}\s?-?\s?\d{2,4})$/);if(m){var s3=ns();s3.airline=m[1];s3.code=m[2]}else if(!seg){ns().airline=l}}
+    });
+    var ok=o.price>0&&o.segs.length>0;
+    o.segs.forEach(function(s){if(!s.dep||!s.from)ok=false});
+    if(!ok){bad++;return}
+    var prev=null;
+    o.segs.forEach(function(s){
+      var d=dayNum(s.date);
+      if(d===null)d=prev?Math.floor(prev.aAbs/1440):0;
+      s.dAbs=d*1440+toMin(s.dep);s.aAbs=d*1440+toMin(s.arr);
+      if(s.aAbs<s.dAbs)s.aAbs+=1440;
+      if(prev&&s.dAbs<prev.aAbs&&dayNum(s.date)===null){s.dAbs+=1440;s.aAbs+=1440}
+      prev=s;
+    });
+    var f=o.segs[0],last=o.segs[o.segs.length-1];
+    o.stops=Math.max(o.exp,o.segs.length-1);
+    o.dep=f.dep;o.arr=last.arr;o.depAbs=f.dAbs;o.arrAbs=last.aAbs;o.dur=o.arrAbs-o.depAbs;
+    o.dayPlus=Math.floor(o.arrAbs/1440)-Math.floor(o.depAbs/1440);
+    var a={};o.segs.forEach(function(s){a[s.airline]=1});o.airlines=Object.keys(a);
+    o.maxLay=0;o.lay.forEach(function(x){o.maxLay=Math.max(o.maxLay,layMin(x))});
+    o.key=o.segs.map(function(s){return s.code+s.date+s.dep}).join('>');
+    res.push(o);
+  });
+  return {list:res,bad:bad};
+}
+function sell(p){
+  var t=$('mt').value,v=parseFloat($('mv').value)||0,v2=parseFloat($('mv2').value)||0,r=p;
+  if(t==='pct')r=p*(1+v/100);else if(t==='fix')r=p+v;else r=p*(1+v/100)+v2;
+  var s=parseInt($('rd').value,10)||1;
+  return Math.ceil(Math.round(r)/s)*s;
+}
+function airlines(){var s={};data.forEach(function(o){o.airlines.forEach(function(a){s[a]=1})});return Object.keys(s).sort()}
+function buildAirChips(){
+  var keep={};Array.prototype.forEach.call($('fa').querySelectorAll('input'),function(i){keep[i.value]=i.checked});
+  $('fa').innerHTML='';
+  airlines().forEach(function(a){
+    var l=el('label','chip'),i=document.createElement('input');i.type='checkbox';i.value=a;i.checked=keep[a]!==false;i.addEventListener('change',render);
+    l.appendChild(i);l.appendChild(document.createTextNode(' '+a));$('fa').appendChild(l);
+  });
+}
+function view(){
+  var air={},tm={};
+  Array.prototype.forEach.call($('fa').querySelectorAll('input'),function(i){air[i.value]=i.checked});
+  Array.prototype.forEach.call($('ft').querySelectorAll('input'),function(i){tm[i.value]=i.checked});
+  var mx=parseFloat($('mx').value)||0,st=$('st').value,ml=parseFloat($('ml').value)||0;
+  var maxStops=st==='all'?99:parseInt(st,10);
+  var l=data.filter(function(o){
+    if(!o.airlines.every(function(a){return air[a]!==false}))return false;
+    if(!tm[bucket(o.dep)])return false;
+    if(o.stops>maxStops)return false;
+    if(ml&&o.maxLay>ml*60)return false;
+    if(mx&&sell(o.price)>mx)return false;
+    return true;
+  }).map(function(o){o.sell=sell(o.price);return o});
+  var s=$('so').value;
+  l.sort(function(a,b){
+    if(s==='time')return a.depAbs-b.depAbs;
+    if(s==='timeD')return b.depAbs-a.depAbs;
+    if(s==='price')return a.sell-b.sell||a.depAbs-b.depAbs;
+    if(s==='priceD')return b.sell-a.sell||a.depAbs-b.depAbs;
+    if(s==='dur')return a.dur-b.dur;
+    return a.airlines[0].localeCompare(b.airlines[0])||a.depAbs-b.depAbs;
+  });
+  return l;
+}
+function render(){
+  $('r2').style.display=$('mt').value==='both'?'flex':'none';
+  $('l1').textContent=$('mt').value==='fix'?'Nominal (Rp)':'Persen';
+  var l=view(),pax=Math.max(1,parseInt($('pax').value,10)||1);
+  var cheap=l.length?Math.min.apply(null,l.map(function(o){return o.sell})):0;
+  var box=$('list');box.innerHTML='';
+  if(!l.length)box.appendChild(el('div','meta','Belum ada penerbangan yang cocok. Tempel teks di sebelah kiri atau longgarkan filter.'));
+  var prof=0,n=0;
+  l.forEach(function(o){
+    var d=el('div','opt'+(off[o.key]?' off':''));
+    var c=document.createElement('input');c.type='checkbox';c.checked=!off[o.key];
+    c.addEventListener('change',function(){off[o.key]=!c.checked;save();render()});
+    var m=el('div');
+    var a=el('div','al',o.segs.map(function(s){return s.airline+' '+s.code}).join(' + '));
+    if(o.sell===cheap)a.appendChild(el('span','tag best','termurah'));
+    a.appendChild(el('span','tag',o.stops>0?o.stops+' transit':'langsung'));
+    m.appendChild(a);
+    m.appendChild(el('div','time',o.dep+' – '+o.arr+(o.dayPlus>0?' (+'+o.dayPlus+')':'')));
+    var first=o.segs[0],route=[iata(first.from)].concat(o.segs.map(function(s){return iata(s.to)})).join(' → ');
+    m.appendChild(el('div','meta',first.date+' · '+route+' · total '+fmtDur(o.dur)+(o.segs.length==1&&first.cls?' · kelas '+first.cls:'')));
+    if(o.segs.length>1){
+      o.segs.forEach(function(s,k){
+        m.appendChild(el('div','meta','• '+s.code+'  '+s.dep+'–'+s.arr+'  ('+iata(s.from)+' → '+iata(s.to)+(s.cls?', kelas '+s.cls:'')+(s.date!==first.date?', '+s.date:'')+')'));
+        if(k<o.segs.length-1)m.appendChild(el('div','lay','⏳ Transit '+(o.lay[k]||'?')+' di '+city(s.to)+' ('+iata(s.to)+')'));
+      });
+    }
+    var p=el('div','price');
+    p.appendChild(el('span','old','IDR '+rp(o.price)));
+    p.appendChild(el('b','','IDR '+rp(o.sell)));
+    p.appendChild(el('span','profit','+'+rp(o.sell-o.price)+'/pax'));
+    d.appendChild(c);d.appendChild(m);d.appendChild(p);box.appendChild(d);
+    if(!off[o.key]){prof+=(o.sell-o.price)*pax;n++}
+  });
+  var sm=$('sum');sm.innerHTML='';
+  [['Tampil: ',l.length],['Dipilih: ',n],['Total laba jika semua terjual (×'+pax+' pax): ','IDR '+rp(prof)]].forEach(function(x){var s=el('span','',x[0]);s.appendChild(el('b','',String(x[1])));sm.appendChild(s)});
+  buildOut(l.filter(function(o){return !off[o.key]}),pax);
+}
+function buildOut(l,pax){
+  var B=$('oBold').checked,E=$('oEmoji').checked,T=$('oTot').checked,C=$('oCls').checked,D=$('oDur').checked;
+  var b=function(s){return B?'*'+s+'*':s};
+  var out=[];
+  if($('hd').value.trim())out.push($('hd').value.trim()+'\n');
+  l.forEach(function(o,i){
+    var r=[(E?'✈️ ':'')+b('Option-'+(i+1))];
+    o.segs.forEach(function(s,k){
+      r.push(b(s.airline+' '+s.code),s.date,s.from+' - '+s.to+(C&&s.cls?'  ['+s.cls+']':''),(E?'🕒 ':'')+s.dep+' - '+s.arr);
+      if(k<o.segs.length-1)r.push('',(E?'⏳ ':'')+'Stop #'+(k+1)+(o.lay[k]?', '+o.lay[k]:''),'');
+    });
+    if(o.segs.length==1)r.push(o.stops+' Stop');
+    if(D&&o.segs.length>1)r.push('Total perjalanan: '+fmtDur(o.dur));
+    r.push((E?'💰 ':'')+b('IDR '+rp(o.sell)));
+    if(T&&pax>1)r.push(pax+' pax = '+b('IDR '+rp(o.sell*pax)));
+    out.push(r.join('\n'));
+  });
+  if($('ft2').value.trim())out.push('\n'+$('ft2').value.trim());
+  $('out').textContent=out.join('\n\n');
+}
+function save(){
+  try{var s={src:$('src').value,off:off};inputs.forEach(function(i){s[i]=$(i).value});checks.forEach(function(i){s[i]=$(i).checked});localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}
+}
+function load(){
+  try{var s=JSON.parse(localStorage.getItem(KEY)||'null');if(!s)return;
+    inputs.forEach(function(i){if(s[i]!==undefined)$(i).value=s[i]});
+    checks.forEach(function(i){if(s[i]!==undefined)$(i).checked=s[i]});
+    if(s.src)$('src').value=s.src;off=s.off||{};
+  }catch(e){}
+}
+function reparse(){
+  var r=parse($('src').value);data=r.list;
+  $('err').textContent=r.bad?r.bad+' blok tidak terbaca, periksa format teksnya.':'';
+  buildAirChips();render();save();
+}
+$('src').addEventListener('input',reparse);
+inputs.concat(checks).forEach(function(i){$(i).addEventListener('input',function(){render();save()})});
+Array.prototype.forEach.call($('ft').querySelectorAll('input'),function(i){i.addEventListener('change',render)});
+$('clr').addEventListener('click',function(){$('src').value='';off={};reparse()});
+$('cp').addEventListener('click',function(){
+  var t=$('out').textContent;
+  function done(ok){$('ok').textContent=ok?'Tersalin ✓':'Gagal menyalin, blok teks lalu salin manual.';setTimeout(function(){$('ok').textContent=''},2500)}
+  function fb(){var r=document.createRange();r.selectNodeContents($('out'));var s=window.getSelection();s.removeAllRanges();s.addRange(r);try{done(document.execCommand('copy'))}catch(e){done(false)}}
+  try{navigator.clipboard.writeText(t).then(function(){done(true)},fb)}catch(e){fb()}
+});
+load();reparse();
+})();
+</script>
+</body>
+</html>
