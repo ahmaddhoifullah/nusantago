@@ -190,7 +190,7 @@ async function makePdf(){
  try{doc.addImage(img.src,'PNG',M,y,14*((img.naturalWidth/img.naturalHeight)||4.7),14)}catch(e){}
  F('bold',9.5);T('PT Nusanta Patra Mandala',M,y+19.5);F('normal',8,mut);
  ['Jl. Jendral Sudirman KM.2, RT/RW 025/006,','Kel. Rengas Condong, Kec. Muara Bulian, Batanghari, Jambi','NPWP 1091031211348595','contact@nusantago.com · 085213131543'].forEach((t,i)=>T(t,M,y+24+i*3.8));
- const meta=[['No. Rekap',dash($('no').value)],['Tgl Dokumen',$('gd').textContent],['Kode Sales',dash($('sl').value)],['Periode',$('pd').textContent],['Jumlah Invoice',$('ni').textContent]];
+ const meta=[['No. Invoice',dash($('no').value)],['Tgl Dokumen',$('gd').textContent],['Kode Sales',dash($('sl').value)],['Periode',$('pd').textContent],['Jumlah Invoice',$('ni').textContent]];
  meta.forEach((m,i)=>{const yy=y+3+i*4.8;F('normal',8.5,mut);T(m[0],R-72,yy);T(':',R-50,yy);F('normal',8.5);T(m[1],R-47,yy)});
  doc.setDrawColor(...ink);doc.setLineWidth(.5);doc.line(M,y+38,R,y+38);
  F('bold',15);T('REKAPITULASI INVOICE',W/2,y+48,{align:'center'});
@@ -215,7 +215,7 @@ async function makePdf(){
  ln.forEach((t,i)=>T(t,i?M:M+lw,yy+i*4));yy+=ln.length*4+2;
  doc.setLineWidth(.5);doc.line(M,yy,R,yy);yy+=7;
  const xr=M+150;
- F('bold',8.5);T('DETAIL PEMBAYARAN',M,yy);T('TANDA TERIMA CUSTOMER / TRAVEL AGENT',xr,yy);
+ F('bold',8.5);T('DETAIL PEMBAYARAN',M,yy);T('TANDA TERIMA',xr,yy);
  F('normal',8.5);T('Transfer ke:',M,yy+5);F('bold',8.5);T('Bank BCA',M,yy+9.5);F('normal',8.5);T('A/N PT. NUSANTA PATRA MANDALA',M,yy+14);F('bold',8.5);T('1192780033',M,yy+18.5);
  F('normal',8.5);T('Mohon cantumkan nomor rekap/invoice pada berita transfer.',M,yy+23);
  doc.text(doc.splitTextToSize('Rekapitulasi di atas telah diterima dalam keadaan lengkap dan benar.',R-xr),xr,yy+5);
